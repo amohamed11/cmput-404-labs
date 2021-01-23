@@ -1,4 +1,5 @@
 import socket
+import time
 from client import create_tcp_socket, get_remote_ip, send_data
 
 
@@ -18,7 +19,7 @@ def main():
         print(f'Socket Connected to {host} on ip {remote_ip}')
 
         # send the data and shutdown
-        payload = f'GET / HTTP/1.0\r\nHost: {host}\r\n\r\n'
+        payload = f'GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n'
         send_data(s, payload)
         s.shutdown(socket.SHUT_WR)
 
@@ -26,7 +27,7 @@ def main():
         full_data = b""
         while True:
             data = s.recv(buffer_size)
-            if not data:
+            if not data or (len(data) < 5 and data.decode() == 'DONE'):
                 break
             full_data += data
         print(full_data)

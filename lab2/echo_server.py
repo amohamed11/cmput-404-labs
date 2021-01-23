@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 import socket
 import time
+from multiprocessing import Pool
 
 # define address & buffer size
 HOST = ""
 PORT = 8001
 BUFFER_SIZE = 1024
+
+
+def handleConnection(conn):
+    full_data = conn.recv(BUFFER_SIZE)
+    time.sleep(0.5)
+    conn.sendall(full_data)
+    conn.sendall("DONE".encode())
+    conn.close()
 
 
 def main():
@@ -25,10 +34,8 @@ def main():
             print("Connected by", addr)
 
             # recieve data, wait a bit, then send it back
-            full_data = conn.recv(BUFFER_SIZE)
-            time.sleep(0.5)
-            conn.sendall(full_data)
-            conn.close()
+            p = Pool(1)
+            p.apply(handleConnection, args=(conn,))
 
 
 if __name__ == "__main__":

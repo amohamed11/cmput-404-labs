@@ -10,8 +10,10 @@ PORT = 8001
 BUFFER_SIZE = 4096
 
 
-def sendToGoogle(payload):
+def sendToGoogle(conn):
     try:
+        # recieve data, wait a bit, then send it back
+        payload = conn.recv(BUFFER_SIZE).decode('utf-8')
         # define address info, payload, and buffer size
         host = 'www.google.com'
         port = 80
@@ -35,16 +37,19 @@ def sendToGoogle(payload):
             if not data:
                 break
             full_data += data
-        return full_data
     except Exception as e:
         print(e)
     finally:
         # always close at the end!
         s.close()
+        conn.sendall(full_data)
+        conn.sendall("DONE".encode())
+        conn.close()
+        return full_data
 
 
 def startServer():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    with create_tcp_socket() as s:
         # QUESTION 3
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # bind socket to address
@@ -55,26 +60,10 @@ def startServer():
         while True:
             conn, addr = s.accept()
             print("Connected by", addr)
-            # recieve data, wait a bit, then send it back
-            payload = conn.recv(BUFFER_SIZE)
-            if len(payload) > 0:
-                response = b""
-                with Pool(4) as p:
-                    reponse = p.apply(sendToGoogle, args=(str(payload),))
-                conn.sendall(response)
-            time.sleep(0.5)
-            conn.close()
+
+            p = Pool(1)
+            p.apply(sendToGoogle, args=(conn,))
 
 
 if __name__ == "__main__":
     startServer()
-    # processes = [Process(target=startServer, args=(googleSocket, ))
-    #         for x in range(4)]
-
-    # # Run processes
-    # for p in processes:
-    #     p.start()
-
-    # # Exit the completed processes
-    # for p in processes:
-    #     p.join()

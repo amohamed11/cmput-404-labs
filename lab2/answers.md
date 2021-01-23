@@ -6,7 +6,7 @@ Client connects to an already open connection through a port.
 Server opens a connection & listens in on a port and allows clients to connect to said port.
 
 ## Question 3:
-By adding `socket.SO_REUSEADDR` options.
+By adding `socket.SO_REUSEADDR` option when creating socket.
 
 ## Question 4:
 The address of the connected client.
@@ -15,3 +15,4 @@ The address of the connected client.
 The sent message is echoed back "Foobar".
 
 ## Question 6:
+https://github.com/amohamed11/cmput-404-labs/tree/main/lab2
